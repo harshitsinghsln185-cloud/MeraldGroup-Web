@@ -1,0 +1,37 @@
+{
+  "brand": {
+    "name": "Groupe Merald",
+    "tagline": "Excellence en Ingénierie, Infrastructures Mondiales"
+  },
+  "nav": {
+    "home": "Accueil",
+    "services": "Services",
+    "countries": "Présence Mondiale",
+    "about": "À Propos",
+    "jobs": "Carrières",
+    "contact": "Contactez-nous",
+    "admin": "Panneau d'Administration"
+  },
+  "hero": {
+    "title": "Solutions d'Infrastructures et de Main-d'œuvre Pionnières sur les Continents",
+    "subtitle": "Ingénierie EPC & MEP, Gestion Intégrée des Installations, Logistique et Fourniture de Main-d'œuvre Technique au Nigeria, en Inde, aux Émirats Arabes Unis, au Ghana et en Ouganda.",
+    "exploreServices": "Explorer Nos Services",
+    "contactUs": "Contacter Notre Équipe"
+  },
+  "stats": {
+    "projects": "Projets Réalisés",
+    "workforce": "Personnel Technique Déployé",
+    "countries": "Pays Actifs",
+    "tonnage": "Tonnage Annuel Géré"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "submit": "Soumettre",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "search": "Rechercher...",
+    "viewDetails": "Voir les détails"
+  }
+}

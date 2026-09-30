@@ -1,0 +1,37 @@
+{
+  "brand": {
+    "name": "Merald Group",
+    "tagline": "Engineering Excellence, Global Infrastructure"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "countries": "Global Footprint",
+    "about": "About Us",
+    "jobs": "Careers",
+    "contact": "Contact Us",
+    "admin": "Admin Panel"
+  },
+  "hero": {
+    "title": "Pioneering Infrastructure & Manpower Solutions Across Continents",
+    "subtitle": "EPC & MEP Contracting, Integrated Facility Management, Logistics & Global Technical Manpower Supply across Nigeria, India, UAE, Ghana, and Uganda.",
+    "exploreServices": "Explore Our Services",
+    "contactUs": "Contact Our Global Team"
+  },
+  "stats": {
+    "projects": "Projects Completed",
+    "workforce": "Technical Workforce Deployed",
+    "countries": "Countries Active",
+    "tonnage": "Tonnage Handled Yearly"
+  },
+  "common": {
+    "loading": "Loading...",
+    "submit": "Submit",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search...",
+    "viewDetails": "View Details"
+  }
+}
