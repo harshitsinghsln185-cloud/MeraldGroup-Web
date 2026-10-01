@@ -33,5 +33,6 @@ const AttendanceSchema: Schema = new Schema(
 
 // Compound index to ensure 1 attendance entry per employee per date
 AttendanceSchema.index({ employeeId: 1, date: 1 }, { unique: true });
+AttendanceSchema.index({ date: -1, siteLocation: 1 });
 
 export default mongoose.model<IAttendance>('Attendance', AttendanceSchema);

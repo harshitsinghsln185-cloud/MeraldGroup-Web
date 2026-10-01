@@ -1,11 +1,17 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import User from '../models/User';
+import PasswordResetToken from '../models/PasswordResetToken';
 import { sendOTPEmail } from '../services/emailService';
-import { AuthenticatedRequest } from '../middleware/roleMiddleware';
+import { AuthenticatedRequest, UserRole } from '../middleware/roleMiddleware';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'merald_group_super_secret_jwt_key_2026';
+
+const hashOTP = (otp: string): string => {
+  return crypto.createHash('sha256').update(otp).digest('hex');
+};
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -62,14 +68,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const VALID_ROLES: UserRole[] = ['HR', 'ACCOUNTS', 'ADMIN', 'SITE_SUPERVISOR'];
+
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !role || !VALID_ROLES.includes(role as UserRole)) {
       res.status(400).json({
         success: false,
-        error: { code: 'INVALID_INPUT', message: 'Email and password are required' },
+        error: {
+          code: 'INVALID_INPUT',
+          message: 'Email, password, and a valid access role (HR, ACCOUNTS, ADMIN, SITE_SUPERVISOR) are required',
+        },
       });
       return;
     }
@@ -90,6 +101,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({
         success: false,
         error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' },
+      });
+      return;
+    }
+
+    // Role verification: check if selected role matches user's assigned role in DB
+    if (user.role !== role) {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'ROLE_UNAUTHORIZED',
+          message: `You are not authorized for the selected role '${role}'. Your registered role is '${user.role}'.`,
+        },
       });
       return;
     }
@@ -207,11 +230,19 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
     // Generate 6-digit numeric OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = hashOTP(otp);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    user.resetOtp = otp;
-    user.resetOtpExpires = expiresAt;
-    await user.save();
+    // Invalidate existing tokens for this email
+    await PasswordResetToken.updateMany({ email: user.email.toLowerCase() }, { used: true });
+
+    // Store hashed token in DB
+    await PasswordResetToken.create({
+      email: user.email.toLowerCase(),
+      otpHash,
+      expiresAt,
+      used: false,
+    });
 
     await sendOTPEmail(user.email, otp);
 
@@ -239,16 +270,18 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const user = await User.findOne({
+    const otpHash = hashOTP(otp);
+    const tokenDoc = await PasswordResetToken.findOne({
       email: email.toLowerCase(),
-      resetOtp: otp,
-      resetOtpExpires: { $gt: new Date() },
+      otpHash,
+      used: false,
+      expiresAt: { $gt: new Date() },
     });
 
-    if (!user) {
+    if (!tokenDoc) {
       res.status(400).json({
         success: false,
-        error: { code: 'INVALID_OTP', message: 'Invalid or expired OTP code' },
+        error: { code: 'INVALID_OTP', message: 'Invalid, used, or expired OTP code' },
       });
       return;
     }
@@ -277,13 +310,15 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const user = await User.findOne({
+    const otpHash = hashOTP(otp);
+    const tokenDoc = await PasswordResetToken.findOne({
       email: email.toLowerCase(),
-      resetOtp: otp,
-      resetOtpExpires: { $gt: new Date() },
+      otpHash,
+      used: false,
+      expiresAt: { $gt: new Date() },
     });
 
-    if (!user) {
+    if (!tokenDoc) {
       res.status(400).json({
         success: false,
         error: { code: 'INVALID_OTP', message: 'Invalid session or expired OTP' },
@@ -291,11 +326,21 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: { code: 'USER_NOT_FOUND', message: 'User account not found' },
+      });
+      return;
+    }
+
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
-    user.resetOtp = undefined;
-    user.resetOtpExpires = undefined;
     await user.save();
+
+    tokenDoc.used = true;
+    await tokenDoc.save();
 
     res.status(200).json({
       success: true,

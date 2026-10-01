@@ -1,9 +1,47 @@
 import { Request, Response } from 'express';
 import Payroll from '../models/Payroll';
 
-// GET /api/v1/admin/payroll (List payrolls with RBAC masking & currency restriction)
+/**
+ * Safe Financial Calculator: Uses integer minor units (kobo/paise * 100)
+ * to avoid JS floating-point arithmetic precision errors (0.1 + 0.2 bugs).
+ */
+export const calculatePayrollDetails = (
+  basic: number,
+  housing = 0,
+  transport = 0,
+  otherAllowances = 0,
+  taxRate = 0.10,
+  pensionRate = 0.05
+) => {
+  const basicCents = Math.round(basic * 100);
+  const housingCents = Math.round(housing * 100);
+  const transportCents = Math.round(transport * 100);
+  const otherCents = Math.round(otherAllowances * 100);
+
+  const grossCents = basicCents + housingCents + transportCents + otherCents;
+  const taxCents = Math.round(grossCents * taxRate);
+  const pensionCents = Math.round(basicCents * pensionRate);
+  const totalDeductionsCents = taxCents + pensionCents;
+  const netCents = Math.max(0, grossCents - totalDeductionsCents);
+
+  return {
+    basicSalary: basicCents / 100,
+    housingAllowance: housingCents / 100,
+    transportAllowance: transportCents / 100,
+    otherAllowances: otherCents / 100,
+    grossSalary: grossCents / 100,
+    taxDeduction: taxCents / 100,
+    pensionDeduction: pensionCents / 100,
+    totalDeductions: totalDeductionsCents / 100,
+    netSalary: netCents / 100,
+  };
+};
+
+// GET /api/v1/admin/payroll (List payrolls with RBAC masking, pagination & currency restriction)
 export const getPayrolls = async (req: Request, res: Response): Promise<void> => {
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
     const month = (req.query.month as string) || '2026-09';
     const currencyFilter = req.query.currency as string;
     const userRole = (req as any).user?.role;
@@ -17,7 +55,11 @@ export const getPayrolls = async (req: Request, res: Response): Promise<void> =>
       query.currency = currencyFilter;
     }
 
-    const payrolls = await Payroll.find(query).sort({ employeeCode: 1 });
+    const total = await Payroll.countDocuments(query);
+    const payrolls = await Payroll.find(query)
+      .sort({ employeeCode: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     // RBAC Masking check: Only HR and ACCOUNTS roles can see financial numbers
     const canSeeFinancials = userRole === 'HR' || userRole === 'ACCOUNTS';
@@ -44,6 +86,12 @@ export const getPayrolls = async (req: Request, res: Response): Promise<void> =>
       success: true,
       data: processed,
       canSeeFinancials,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch payroll records.' });

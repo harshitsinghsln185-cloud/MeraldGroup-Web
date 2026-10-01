@@ -1,0 +1,15 @@
+{
+  "name": "merald-group-portal-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint:client": "npm --prefix client run lint",
+    "typecheck:client": "npm --prefix client run typecheck",
+    "test:client": "npm --prefix client run test",
+    "build:client": "npm --prefix client run build",
+    "typecheck:server": "npm --prefix server run typecheck",
+    "test:server": "npm --prefix server run test",
+    "build:server": "npm --prefix server run build",
+    "verify": "npm run lint:client && npm run typecheck:client && npm run test:client && npm run build:client && npm run typecheck:server && npm run test:server && npm run build:server"
+  }
+}

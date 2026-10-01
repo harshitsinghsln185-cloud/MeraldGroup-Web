@@ -55,5 +55,6 @@ const PayrollSchema: Schema = new Schema(
 
 // Compound index to ensure 1 payroll record per employee per month
 PayrollSchema.index({ employeeId: 1, month: 1 }, { unique: true });
+PayrollSchema.index({ month: 1, currency: 1 });
 
 export default mongoose.model<IPayroll>('Payroll', PayrollSchema);

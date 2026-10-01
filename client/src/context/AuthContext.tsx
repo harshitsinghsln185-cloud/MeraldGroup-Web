@@ -48,6 +48,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
+  demoLogin: (role: UserRole) => void;
   hasModuleAccess: (moduleName: SystemModule, accessType?: 'read' | 'write') => boolean;
   getModulePermission: (moduleName: SystemModule) => PermissionLevel;
 }
@@ -83,6 +84,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('merald_user');
   };
 
+  const demoLogin = (role: UserRole) => {
+    const demoUsers: Record<UserRole, User> = {
+      HR: { id: 'demo-hr', name: 'Demo HR Manager', email: 'hr@meraldgroup.com', role: 'HR', department: 'Human Resources' },
+      ACCOUNTS: { id: 'demo-accounts', name: 'Demo Accounts Exec', email: 'accounts@meraldgroup.com', role: 'ACCOUNTS', department: 'Finance & Accounts' },
+      ADMIN: { id: 'demo-admin', name: 'Demo Administrator', email: 'admin@meraldgroup.com', role: 'ADMIN', department: 'IT & Management' },
+      SITE_SUPERVISOR: { id: 'demo-supervisor', name: 'Demo Site Supervisor', email: 'supervisor@meraldgroup.com', role: 'SITE_SUPERVISOR', department: 'Lagos Site A', siteId: 'SITE-NIG-01' },
+    };
+    const newUser = demoUsers[role];
+    const demoToken = `demo_token_${role.toLowerCase()}_2026`;
+    login(demoToken, newUser);
+  };
+
   const getModulePermission = (moduleName: SystemModule): PermissionLevel => {
     if (!user) return 'NO_ACCESS';
     return PERMISSION_MATRIX[moduleName]?.[user.role] || 'NO_ACCESS';
@@ -109,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         logout,
+        demoLogin,
         hasModuleAccess,
         getModulePermission,
       }}

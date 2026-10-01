@@ -65,15 +65,15 @@ router.put('/payroll/:id/status', checkModuleAccess('payroll_processing', 'write
 router.get('/manpower', checkModuleAccess('manpower_management', 'read'), getManpowerAnalytics);
 
 // Phase 5: Offboarding & Exit Clearance Management
-router.get('/clearance', getClearances);
-router.post('/clearance', createClearance);
-router.put('/clearance/:id/item', updateClearanceItem);
+router.get('/clearance', checkModuleAccess('employee_master_data', 'read'), getClearances);
+router.post('/clearance', checkModuleAccess('employee_master_data', 'write'), createClearance);
+router.put('/clearance/:id/item', checkModuleAccess('employee_master_data', 'write'), updateClearanceItem);
 
 // Phase 5: Filterable Reports & Data Export Suite
 router.get('/reports/summary', checkModuleAccess('hr_operational_reports', 'read'), getReportsSummary);
 
 // Phase 5: System Settings & Audit Logs
-router.get('/settings', getSettings);
-router.put('/settings', updateSettings);
+router.get('/settings', checkModuleAccess('system_settings', 'read'), getSettings);
+router.put('/settings', checkModuleAccess('system_settings', 'write'), updateSettings);
 
 export default router;

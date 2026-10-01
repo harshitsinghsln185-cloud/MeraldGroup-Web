@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Lock, Mail, ArrowRight, User as UserIcon, Building2, Phone, Clock, AlertCircle } from 'lucide-react';
+import { useAuth, type UserRole } from '../../context/AuthContext';
+import { Lock, Mail, ArrowRight, User as UserIcon, Building2, Phone, Clock, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
 export const Login: React.FC = () => {
@@ -11,6 +11,7 @@ export const Login: React.FC = () => {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   // Login form state
+  const [selectedRole, setSelectedRole] = useState<UserRole>('HR');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -35,7 +36,7 @@ export const Login: React.FC = () => {
       const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role: selectedRole }),
       });
 
       const data = await response.json();
@@ -158,6 +159,29 @@ export const Login: React.FC = () => {
           {!isRegisterMode ? (
             /* ---------------- LOGIN FORM ---------------- */
             <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#0D2E45] uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Target Access Role</span>
+                  <span className="text-[10px] text-gray-500 font-normal lowercase">(Required for login authorization)</span>
+                </label>
+                <div className="relative">
+                  <ShieldCheck className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="w-full pl-9 pr-8 py-2.5 text-sm bg-[#F7F9FA] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D9DA0] transition-all text-[#1A1F24] font-medium appearance-none cursor-pointer"
+                  >
+                    <option value="HR">HR Manager (HR)</option>
+                    <option value="ACCOUNTS">Finance & Payroll (ACCOUNTS)</option>
+                    <option value="ADMIN">System Administrator (ADMIN)</option>
+                    <option value="SITE_SUPERVISOR">Site Supervisor (SITE_SUPERVISOR)</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-xs text-gray-400">
+                    ▼
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-semibold text-[#0D2E45] uppercase tracking-wider mb-1.5">
                   Corporate Email Address
