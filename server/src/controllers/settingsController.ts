@@ -23,45 +23,6 @@ export const getSettings = async (req: Request, res: Response): Promise<void> =>
   try {
     const logs = await AuditLog.find().sort({ timestamp: -1 }).limit(25);
 
-    // If empty audit logs, populate seed logs
-    if (logs.length === 0) {
-      const demoLogs = [
-        {
-          userEmail: 'hr@meraldgroup.com',
-          userRole: 'HR',
-          action: 'PAYROLL_BATCH_PROCESSED',
-          module: 'payroll_processing',
-          details: 'Processed 2026-09 batch monthly payroll for 48 active employees.',
-          timestamp: new Date(Date.now() - 3600000 * 2),
-        },
-        {
-          userEmail: 'accounts@meraldgroup.com',
-          userRole: 'ACCOUNTS',
-          action: 'PAYSLIP_PRINTED',
-          module: 'payroll_processing',
-          details: 'Generated official Merald Group Payslip PDF for MGD-NIG-1001.',
-          timestamp: new Date(Date.now() - 3600000 * 5),
-        },
-        {
-          userEmail: 'supervisor@meraldgroup.com',
-          userRole: 'SITE_SUPERVISOR',
-          action: 'MANPOWER_UPDATED',
-          module: 'manpower_management',
-          details: 'Updated Lagos Commercial Tower site deployment headcount.',
-          timestamp: new Date(Date.now() - 3600000 * 12),
-        },
-      ];
-      await AuditLog.insertMany(demoLogs);
-      const reFetchedLogs = await AuditLog.find().sort({ timestamp: -1 }).limit(25);
-
-      res.json({
-        success: true,
-        settings: systemSettings,
-        auditLogs: reFetchedLogs,
-      });
-      return;
-    }
-
     res.json({
       success: true,
       settings: systemSettings,

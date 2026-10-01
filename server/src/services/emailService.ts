@@ -1,15 +1,22 @@
 import nodemailer from 'nodemailer';
+import { getEmailConfig } from '../config/emailConfig';
 
 const getTransporter = () => {
+  const config = getEmailConfig();
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_SECURE === 'true',
+    host: config.smtpHost,
+    port: config.smtpPort,
+    secure: config.smtpSecure,
     auth: {
-      user: process.env.SMTP_USER || 'demo_user',
-      pass: process.env.SMTP_PASS || 'demo_password',
+      user: config.smtpUser,
+      pass: config.smtpPassword,
     },
   });
+};
+
+const getFromAddress = () => {
+  const config = getEmailConfig();
+  return `"${config.emailFromName}" <${config.emailFromAddress}>`;
 };
 
 /**
@@ -60,7 +67,7 @@ export const sendWelcomeEmail = async (
     `;
 
     await transporter.sendMail({
-      from: '"Merald Group HR" <no-reply@meraldgroup.com>',
+      from: getFromAddress(),
       to: toEmail,
       subject: 'Welcome to Merald Group Enterprise Portal',
       html: htmlContent,
@@ -105,7 +112,7 @@ export const sendOTPEmail = async (toEmail: string, otpCode: string): Promise<bo
     `;
 
     await transporter.sendMail({
-      from: '"Merald Security" <security@meraldgroup.com>',
+      from: getFromAddress(),
       to: toEmail,
       subject: 'Merald Group Password Reset OTP Code',
       html: htmlContent,
@@ -163,7 +170,7 @@ export const sendApplicationConfirmationEmail = async (
     `;
 
     await transporter.sendMail({
-      from: '"Merald Group Recruitment" <careers@meraldgroup.com>',
+      from: getFromAddress(),
       to: toEmail,
       subject: `Application Confirmation - ${jobTitle} | Merald Group`,
       html: htmlContent,

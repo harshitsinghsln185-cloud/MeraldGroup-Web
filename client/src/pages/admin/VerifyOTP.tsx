@@ -28,15 +28,10 @@ export const VerifyOTP: React.FC = () => {
       if (response.ok && data.success) {
         navigate('/reset-password', { state: { email: emailFromState, otp } });
       } else {
-        // Fallback for demo OTP (e.g. 123456 or any 6 digits)
-        if (otp.length === 6) {
-          navigate('/reset-password', { state: { email: emailFromState, otp } });
-        } else {
-          setErrorMessage('Please enter a valid 6-digit OTP code.');
-        }
+        setErrorMessage(data.error?.message || 'Invalid or expired OTP code.');
       }
     } catch {
-      navigate('/reset-password', { state: { email: emailFromState, otp } });
+      setErrorMessage('Server connection error. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -82,10 +77,6 @@ export const VerifyOTP: React.FC = () => {
               className="w-full text-center text-2xl font-mono tracking-widest py-3 bg-[#F7F9FA] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3D9DA0] text-[#0D2E45]"
             />
           </div>
-
-          <p className="text-[11px] text-gray-400 text-center">
-            Demo Tip: Enter any 6 digits (e.g. <span className="font-mono font-bold text-[#0D2E45]">123456</span>) to proceed.
-          </p>
 
           <Button
             type="submit"

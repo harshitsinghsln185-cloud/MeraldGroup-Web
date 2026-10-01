@@ -14,20 +14,22 @@ export const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await fetch('/api/v1/auth/forgot-password', {
+      const res = await fetch('/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      setMessage('A 6-digit OTP code has been dispatched to your corporate email.');
-      setTimeout(() => {
-        navigate('/verify-otp', { state: { email } });
-      }, 1500);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMessage('A 6-digit OTP code has been dispatched to your corporate email.');
+        setTimeout(() => {
+          navigate('/verify-otp', { state: { email } });
+        }, 1500);
+      } else {
+        setMessage(data.error?.message || 'Failed to send OTP code. Please verify your email.');
+      }
     } catch {
-      setMessage('Demo mode: Redirecting to OTP verification screen...');
-      setTimeout(() => {
-        navigate('/verify-otp', { state: { email } });
-      }, 1500);
+      setMessage('Server connection error. Please try again.');
     } finally {
       setIsLoading(false);
     }

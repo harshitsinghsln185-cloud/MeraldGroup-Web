@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "seed": "tsx src/seeders/seedAll.ts",
-    "seed:all": "tsx src/seeders/seedAll.ts"
+    "seed:all": "tsx src/seeders/seedAll.ts",
+    "seed:hr": "tsx src/seeders/seedHR.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

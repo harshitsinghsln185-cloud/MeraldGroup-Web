@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CalendarCheck,
   CheckCircle2,
@@ -25,56 +25,55 @@ export const Attendance: React.FC = () => {
   const [checkInStatus, setCheckInStatus] = useState<'P' | 'A' | 'HD' | 'L' | 'OT'>('P');
   const [checkInOT, setCheckInOT] = useState<number>(2);
 
-  const mockRoster: AttendanceEntry[] = [
-    {
-      employeeCode: 'MRLD-NIG-042',
-      employeeName: 'Emmanuel Chukwu',
-      siteLocation: 'Lagos Financial Tower Site',
-      statuses: {
-        1: 'P', 2: 'P', 3: 'P', 4: 'P', 5: 'P', 6: 'A', 7: 'L',
-        8: 'P', 9: 'P', 10: 'P', 11: 'P', 12: 'OT', 13: 'P', 14: 'P',
-        15: 'P', 16: 'P', 17: 'HD', 18: 'P', 19: 'P', 20: 'P', 21: 'P',
-        22: 'P', 23: 'P', 24: 'P', 25: 'P', 26: 'P', 27: 'P', 28: 'P', 29: 'P', 30: 'P',
-      },
-      overtimeHours: 14,
-    },
-    {
-      employeeCode: 'MRLD-IND-118',
-      employeeName: 'Rajesh Kumar',
-      siteLocation: 'Cyber City Hub, Gurgaon',
-      statuses: {
-        1: 'P', 2: 'P', 3: 'P', 4: 'P', 5: 'P', 6: 'P', 7: 'P',
-        8: 'OT', 9: 'P', 10: 'P', 11: 'P', 12: 'P', 13: 'P', 14: 'A',
-        15: 'P', 16: 'P', 17: 'P', 18: 'P', 19: 'P', 20: 'L', 21: 'L',
-        22: 'P', 23: 'P', 24: 'P', 25: 'P', 26: 'P', 27: 'P', 28: 'P', 29: 'P', 30: 'P',
-      },
-      overtimeHours: 18,
-    },
-    {
-      employeeCode: 'MRLD-UAE-089',
-      employeeName: 'Zaid Al-Hassan',
-      siteLocation: 'Business Bay Tower, Dubai',
-      statuses: {
-        1: 'P', 2: 'P', 3: 'P', 4: 'P', 5: 'P', 6: 'P', 7: 'P',
-        8: 'P', 9: 'P', 10: 'P', 11: 'HD', 12: 'P', 13: 'P', 14: 'P',
-        15: 'P', 16: 'P', 17: 'P', 18: 'P', 19: 'P', 20: 'P', 21: 'P',
-        22: 'P', 23: 'P', 24: 'P', 25: 'P', 26: 'P', 27: 'P', 28: 'P', 29: 'P', 30: 'P',
-      },
-      overtimeHours: 8,
-    },
-    {
-      employeeCode: 'MRLD-GHA-055',
-      employeeName: 'Kwame Mensah',
-      siteLocation: 'Accra Power Substation',
-      statuses: {
-        1: 'P', 2: 'P', 3: 'A', 4: 'P', 5: 'P', 6: 'P', 7: 'P',
-        8: 'P', 9: 'P', 10: 'P', 11: 'P', 12: 'P', 13: 'P', 14: 'P',
-        15: 'P', 16: 'P', 17: 'P', 18: 'P', 19: 'P', 20: 'P', 21: 'P',
-        22: 'P', 23: 'P', 24: 'P', 25: 'P', 26: 'P', 27: 'P', 28: 'P', 29: 'P', 30: 'P',
-      },
-      overtimeHours: 6,
-    },
-  ];
+  const [roster, setRoster] = useState<AttendanceEntry[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchRoster = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('merald_token');
+        const res = await fetch(
+          `/api/v1/admin/attendance?month=${selectedMonth}&site=${encodeURIComponent(selectedSite)}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          const empMap: Record<string, AttendanceEntry> = {};
+          for (const item of data.data) {
+            const code = item.employeeCode || 'EMP';
+            if (!empMap[code]) {
+              empMap[code] = {
+                employeeCode: code,
+                employeeName: item.employeeName || 'Staff Member',
+                siteLocation: item.siteLocation || selectedSite,
+                statuses: {},
+                overtimeHours: 0,
+              };
+            }
+            if (item.date) {
+              const dayNum = parseInt(item.date.split('-')[2], 10);
+              if (dayNum) {
+                empMap[code].statuses[dayNum] = item.status || 'P';
+              }
+            }
+            empMap[code].overtimeHours += item.overtimeHours || 0;
+          }
+          setRoster(Object.values(empMap));
+        } else {
+          setRoster([]);
+        }
+      } catch {
+        setRoster([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoster();
+  }, [selectedMonth, selectedSite]);
 
   const daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -205,33 +204,47 @@ export const Attendance: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {mockRoster.map((entry) => (
-                <tr key={entry.employeeCode} className="hover:bg-gray-50/80 transition-colors">
-                  <td className="py-3 px-3 text-left">
-                    <p className="font-bold text-[#0D2E45]">{entry.employeeName}</p>
-                    <p className="text-[10px] text-gray-400 font-mono">{entry.employeeCode}</p>
-                  </td>
-
-                  {daysInMonth.map((day) => {
-                    const status = entry.statuses[day] || 'P';
-                    return (
-                      <td key={day} className="py-2 px-1">
-                        <span
-                          className={`inline-block w-6 h-6 leading-6 rounded text-[10px] text-center font-bold ${getStatusBadgeClass(
-                            status
-                          )}`}
-                        >
-                          {status}
-                        </span>
-                      </td>
-                    );
-                  })}
-
-                  <td className="py-3 px-3 font-mono font-bold text-purple-700">
-                    +{entry.overtimeHours}h
+              {loading ? (
+                <tr>
+                  <td colSpan={32} className="py-8 text-center text-gray-500">
+                    Loading site attendance roster...
                   </td>
                 </tr>
-              ))}
+              ) : roster.length === 0 ? (
+                <tr>
+                  <td colSpan={32} className="py-8 text-center text-gray-500">
+                    No attendance records found for the selected month and site. Use "Record Daily Site Check-In" to log attendance.
+                  </td>
+                </tr>
+              ) : (
+                roster.map((entry) => (
+                  <tr key={entry.employeeCode} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="py-3 px-3 text-left">
+                      <p className="font-bold text-[#0D2E45]">{entry.employeeName}</p>
+                      <p className="text-[10px] text-gray-400 font-mono">{entry.employeeCode}</p>
+                    </td>
+
+                    {daysInMonth.map((day) => {
+                      const status = entry.statuses[day] || 'P';
+                      return (
+                        <td key={day} className="py-2 px-1">
+                          <span
+                            className={`inline-block w-6 h-6 leading-6 rounded text-[10px] text-center font-bold ${getStatusBadgeClass(
+                              status
+                            )}`}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                      );
+                    })}
+
+                    <td className="py-3 px-3 font-mono font-bold text-purple-700">
+                      +{entry.overtimeHours}h
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

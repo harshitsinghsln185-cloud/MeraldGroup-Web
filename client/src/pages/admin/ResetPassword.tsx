@@ -46,12 +46,10 @@ export const ResetPassword: React.FC = () => {
         setSuccessMessage('Password reset successfully! Redirecting to sign in...');
         setTimeout(() => navigate('/admin/login'), 2000);
       } else {
-        setSuccessMessage('Demo password reset successful! Redirecting to sign in...');
-        setTimeout(() => navigate('/admin/login'), 2000);
+        setErrorMessage(data.error?.message || 'Failed to reset password.');
       }
     } catch {
-      setSuccessMessage('Demo password reset successful! Redirecting to sign in...');
-      setTimeout(() => navigate('/admin/login'), 2000);
+      setErrorMessage('Server connection error. Please try again.');
     } finally {
       setIsLoading(false);
     }

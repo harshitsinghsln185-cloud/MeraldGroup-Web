@@ -5,12 +5,14 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
+import { validateEmailEnvStartup } from './config/emailConfig';
 
 import publicRoutes from './routes/publicRoutes';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 
 dotenv.config();
+validateEmailEnvStartup();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

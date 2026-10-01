@@ -13,53 +13,6 @@ export const getClearances = async (req: Request, res: Response): Promise<void> 
 
     const items = await Clearance.find(query).sort({ createdAt: -1 });
 
-    // Fallback seed demo entries if empty
-    if (items.length === 0) {
-      const demoEntries = [
-        {
-          employeeCode: 'MGD-NIG-1001',
-          employeeName: 'Chidi Okonkwo',
-          country: 'Nigeria',
-          department: 'MEP Services',
-          designation: 'Senior MEP Project Engineer',
-          exitReason: 'Contract Completion / Relocation',
-          lastWorkingDay: new Date('2026-10-15'),
-          status: 'CLEARED',
-          nocIssued: true,
-          nocIssuedDate: new Date('2026-09-20'),
-          nocReferenceNo: 'MGD/NOC/2026/0942',
-          clearanceItems: [
-            { departmentKey: 'IT', departmentName: 'IT Hardware & Email Access', cleared: true, clearedBy: 'itadmin@meraldgroup.com', clearedAt: new Date() },
-            { departmentKey: 'HR', departmentName: 'ID Badge & Employment Contract', cleared: true, clearedBy: 'hr@meraldgroup.com', clearedAt: new Date() },
-            { departmentKey: 'ACCOUNTS', departmentName: 'Financial Dues & Gratuity', cleared: true, clearedBy: 'accounts@meraldgroup.com', clearedAt: new Date() },
-            { departmentKey: 'SITE', departmentName: 'Safety Gear & Site Tooling', cleared: true, clearedBy: 'supervisor@meraldgroup.com', clearedAt: new Date() },
-          ],
-        },
-        {
-          employeeCode: 'MGD-IND-2004',
-          employeeName: 'Rajesh Sharma',
-          country: 'India',
-          department: 'HVAC',
-          designation: 'HVAC Specialist Technician',
-          exitReason: 'Personal Career Transition',
-          lastWorkingDay: new Date('2026-10-30'),
-          status: 'IN_PROGRESS',
-          nocIssued: false,
-          clearanceItems: [
-            { departmentKey: 'IT', departmentName: 'IT Hardware & Email Access', cleared: true, clearedBy: 'itadmin@meraldgroup.com', clearedAt: new Date() },
-            { departmentKey: 'HR', departmentName: 'ID Badge & Employment Contract', cleared: true, clearedBy: 'hr@meraldgroup.com', clearedAt: new Date() },
-            { departmentKey: 'ACCOUNTS', departmentName: 'Financial Dues & Gratuity', cleared: false },
-            { departmentKey: 'SITE', departmentName: 'Safety Gear & Site Tooling', cleared: true, clearedBy: 'supervisor@meraldgroup.com', clearedAt: new Date() },
-          ],
-        },
-      ];
-
-      await Clearance.insertMany(demoEntries);
-      const reFetched = await Clearance.find(query).sort({ createdAt: -1 });
-      res.json({ success: true, data: reFetched });
-      return;
-    }
-
     res.json({ success: true, data: items });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch exit clearances.' });

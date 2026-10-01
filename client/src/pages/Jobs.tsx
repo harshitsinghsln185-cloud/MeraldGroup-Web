@@ -41,69 +41,6 @@ export interface JobOpening {
   salaryPackage?: { amount: number; currency: 'INR' | 'NGN' };
 }
 
-const sampleJobs: JobOpening[] = [
-  {
-    _id: 'job-1',
-    title: 'Senior MEP Project Engineer',
-    department: 'EPC',
-    country: 'Nigeria',
-    type: 'Full-time Site Deployment',
-    experienceYears: '5-8 Years',
-    description: 'Lead high-voltage electrical substation and HVAC chiller installation for commercial towers in Lagos.',
-    salaryPackage: { amount: 1500000, currency: 'NGN' },
-  },
-  {
-    _id: 'job-2',
-    title: 'HSE Safety Manager & Inspector',
-    department: 'Facility Management',
-    country: 'UAE',
-    type: 'Full-time Site Deployment',
-    experienceYears: '4-7 Years',
-    description: 'Enforce ISO 45001 & 9001 compliance, risk assessments, and cleanroom safety protocols in Dubai.',
-    salaryPackage: { amount: 120000, currency: 'INR' },
-  },
-  {
-    _id: 'job-3',
-    title: 'Heavy Logistics Fleet Operations Director',
-    department: 'Logistics',
-    country: 'India',
-    type: 'Corporate Headquarters',
-    experienceYears: '8+ Years',
-    description: 'Manage heavy equipment haulage, cross-border GPS route clearance, and cargo fleets for industrial sites.',
-    salaryPackage: { amount: 180000, currency: 'INR' },
-  },
-  {
-    _id: 'job-4',
-    title: 'Commercial HVAC Technician Supervisor',
-    department: 'HVAC',
-    country: 'Ghana',
-    type: 'Field Operations',
-    experienceYears: '3-6 Years',
-    description: 'Supervise chiller plant maintenance, ducting installation, and environmental testing in Tema.',
-    salaryPackage: { amount: 950000, currency: 'NGN' },
-  },
-  {
-    _id: 'job-5',
-    title: 'Substation Electrical Lead',
-    department: 'EPC',
-    country: 'Uganda',
-    type: 'Contract Deployment',
-    experienceYears: '5+ Years',
-    description: 'Commission high-voltage transformers, switchgears, and power distribution grids in Kampala.',
-    salaryPackage: { amount: 110000, currency: 'INR' },
-  },
-  {
-    _id: 'job-6',
-    title: 'Corporate Procurement & Supply Officer',
-    department: 'Corporate',
-    country: 'Anywhere',
-    type: 'Hybrid / Regional Hub',
-    experienceYears: '4-8 Years',
-    description: 'Oversee electrical board distribution contracts, supplier vetting, and international cargo logistics.',
-    salaryPackage: { amount: 1300000, currency: 'NGN' },
-  },
-];
-
 export const Jobs: React.FC = () => {
   const [jobs, setJobs] = useState<JobOpening[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -145,10 +82,10 @@ export const Jobs: React.FC = () => {
           }));
           setJobs(mappedJobs);
         } else {
-          setJobs(sampleJobs);
+          setJobs([]);
         }
       } catch {
-        setJobs(sampleJobs);
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -157,7 +94,7 @@ export const Jobs: React.FC = () => {
     fetchJobs();
   }, [selectedCountry, selectedDepartment]);
 
-  // Filter logic for client side if using sample fallback
+  // Filter logic for candidate job vacancy search
   const filteredJobs = jobs.filter((j) => {
     const matchDept = selectedDepartment ? j.department.toLowerCase().includes(selectedDepartment.toLowerCase()) : true;
     const matchLoc = selectedCountry ? j.country.toLowerCase() === selectedCountry.toLowerCase() || j.country.toLowerCase() === 'anywhere' : true;

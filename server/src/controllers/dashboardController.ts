@@ -1,5 +1,10 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/roleMiddleware';
+import Employee from '../models/Employee';
+import Leave from '../models/Leave';
+import AuditLog from '../models/AuditLog';
+import Manpower from '../models/Manpower';
+import Attendance from '../models/Attendance';
 
 export const getDashboardMetrics = async (
   req: AuthenticatedRequest,
@@ -9,91 +14,101 @@ export const getDashboardMetrics = async (
     const role = req.user?.role || 'ADMIN';
     const siteId = req.user?.siteId;
 
-    // Rich initial mock/computed operational data for Phase 2 Dashboard
+    const empQuery: Record<string, unknown> = { status: 'ACTIVE' };
+    if (role === 'SITE_SUPERVISOR' && siteId) {
+      empQuery.siteLocation = siteId;
+    }
+
+    const totalEmployees = await Employee.countDocuments(empQuery);
+    const uniqueSites = await Employee.distinct('siteLocation', empQuery);
+    const activeSites = uniqueSites.filter(Boolean).length;
+
+    const pendingLeaveRequests = await Leave.countDocuments({ status: 'PENDING' });
+
+    // Calculate manpower shortfall
+    const mpAgg = await Manpower.aggregate([
+      { $group: { _id: null, totalShortfall: { $sum: '$shortfall' } } },
+    ]);
+    const manpowerShortfall = mpAgg[0]?.totalShortfall || 0;
+
+    // Document expiry alerts (within 30 days)
+    const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const employeesWithExpiringDocs = await Employee.find({
+      'documents.expiryDate': { $lte: thirtyDaysFromNow },
+    }).limit(10);
+
+    const documentExpiryAlerts: Array<{
+      id: string;
+      employeeName: string;
+      employeeCode: string;
+      documentType: string;
+      expiryDate: string;
+      daysRemaining: number;
+      site: string;
+    }> = [];
+
+    for (const emp of employeesWithExpiringDocs) {
+      for (const doc of emp.documents || []) {
+        if (doc.expiryDate && new Date(doc.expiryDate) <= thirtyDaysFromNow) {
+          const diffMs = new Date(doc.expiryDate).getTime() - Date.now();
+          const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+          documentExpiryAlerts.push({
+            id: String((doc as any)._id || `${emp._id}-${doc.documentType}`),
+            employeeName: emp.fullName,
+            employeeCode: emp.employeeCode,
+            documentType: doc.documentType,
+            expiryDate: new Date(doc.expiryDate).toISOString().split('T')[0],
+            daysRemaining,
+            site: emp.siteLocation || 'Unassigned',
+          });
+        }
+      }
+    }
+
+    // Today's attendance percentage
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayPresentCount = await Attendance.countDocuments({ date: todayStr, status: 'P' });
+    const todayAttendancePercentage = totalEmployees > 0
+      ? Math.round((todayPresentCount / totalEmployees) * 1000) / 10
+      : 0;
+
+    // Headcount by country
+    const countryAgg = await Employee.aggregate([
+      { $match: { status: 'ACTIVE' } },
+      { $group: { _id: '$country', headcount: { $sum: 1 }, sites: { $addToSet: '$siteLocation' } } },
+    ]);
+
+    const headcountByCountry = countryAgg.map((c) => ({
+      country: c._id || 'General',
+      headcount: c.headcount,
+      sites: c.sites.filter(Boolean).length,
+    }));
+
+    // Recent activities from audit log
+    const recentLogs = await AuditLog.find().sort({ timestamp: -1 }).limit(5);
+    const recentActivities = recentLogs.map((log) => ({
+      id: String(log._id),
+      timestamp: new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: log.module.toUpperCase(),
+      description: `${log.action}: ${log.details}`,
+    }));
+
     const metrics = {
-      totalEmployees: 485,
-      activeSites: 18,
-      documentExpiryCount: 14,
-      todayAttendancePercentage: 94.2,
-      pendingLeaveRequests: 8,
-      manpowerShortfall: role === 'SITE_SUPERVISOR' && siteId ? 5 : 24,
+      totalEmployees,
+      activeSites,
+      documentExpiryCount: documentExpiryAlerts.length,
+      todayAttendancePercentage,
+      pendingLeaveRequests,
+      manpowerShortfall,
       roleAccess: {
         role,
         canAccessFinancials: role === 'HR' || role === 'ACCOUNTS',
         canAccessSettings: role === 'HR' || role === 'ACCOUNTS',
         canApproveLeaves: role === 'HR' || role === 'ADMIN',
       },
-      documentExpiryAlerts: [
-        {
-          id: 'EXP-101',
-          employeeName: 'Emmanuel Chukwu',
-          employeeCode: 'MRLD-NIG-042',
-          documentType: 'Work Permit',
-          expiryDate: '2026-10-12',
-          daysRemaining: 17,
-          site: 'Lagos Island Site A',
-        },
-        {
-          id: 'EXP-102',
-          employeeName: 'Rajesh Kumar',
-          employeeCode: 'MRLD-IND-118',
-          documentType: 'Passport',
-          expiryDate: '2026-10-19',
-          daysRemaining: 24,
-          site: 'Noida Metro Hub',
-        },
-        {
-          id: 'EXP-103',
-          employeeName: 'Zaid Al-Hassan',
-          employeeCode: 'MRLD-UAE-089',
-          documentType: 'Emirates ID',
-          expiryDate: '2026-10-05',
-          daysRemaining: 10,
-          site: 'Dubai Business Bay Tower',
-        },
-        {
-          id: 'EXP-104',
-          employeeName: 'Kwame Mensah',
-          employeeCode: 'MRLD-GHA-055',
-          documentType: 'HSE Certification',
-          expiryDate: '2026-10-28',
-          daysRemaining: 33,
-          site: 'Accra Power Substation',
-        },
-      ],
-      recentActivities: [
-        {
-          id: 'ACT-01',
-          timestamp: '10 mins ago',
-          type: 'ATTENDANCE',
-          description: 'Lagos Island Site A attendance roster submitted by Site Supervisor',
-        },
-        {
-          id: 'ACT-02',
-          timestamp: '45 mins ago',
-          type: 'LEAVE',
-          description: 'Annual Leave request submitted by Rajesh Kumar (Noida Metro)',
-        },
-        {
-          id: 'ACT-03',
-          timestamp: '2 hours ago',
-          type: 'ONBOARDING',
-          description: 'New employee onboarding credentials generated for 3 MEP Technicians',
-        },
-        {
-          id: 'ACT-04',
-          timestamp: '4 hours ago',
-          type: 'DOCUMENT',
-          description: 'Renewed Work Permit uploaded for Emmanuel Chukwu',
-        },
-      ],
-      headcountByCountry: [
-        { country: 'Nigeria', headcount: 195, sites: 7 },
-        { country: 'India', headcount: 140, sites: 5 },
-        { country: 'UAE', headcount: 82, sites: 3 },
-        { country: 'Ghana', headcount: 43, sites: 2 },
-        { country: 'Uganda', headcount: 25, sites: 1 },
-      ],
+      documentExpiryAlerts,
+      recentActivities,
+      headcountByCountry,
     };
 
     res.status(200).json({

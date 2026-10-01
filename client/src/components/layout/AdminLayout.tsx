@@ -34,7 +34,7 @@ interface NavItem {
 }
 
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, logout, demoLogin } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -225,27 +225,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           })}
         </nav>
 
-        {/* RBAC Role Switcher (Convenient Demo Widget) */}
-        <div className="p-3 bg-[#081B29] border-t border-[#14476B]">
-          <div className="text-[11px] text-gray-400 font-semibold tracking-wider uppercase mb-2">
-            Switch Demo RBAC Role:
-          </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            {(['HR', 'ACCOUNTS', 'ADMIN', 'SITE_SUPERVISOR'] as UserRole[]).map((r) => (
-              <button
-                key={r}
-                onClick={() => demoLogin(r)}
-                className={`text-[11px] py-1 px-2 rounded font-medium transition-colors ${
-                  user?.role === r
-                    ? 'bg-[#3D9DA0] text-white shadow-sm font-bold'
-                    : 'bg-[#14476B]/40 text-gray-300 hover:bg-[#14476B] hover:text-white'
-                }`}
-              >
-                {r === 'SITE_SUPERVISOR' ? 'SUPERVISOR' : r}
-              </button>
-            ))}
-          </div>
-        </div>
+
 
         {/* Sidebar Footer Link to Public Website */}
         <div className="p-4 border-t border-[#14476B] flex items-center justify-between text-xs text-gray-300">

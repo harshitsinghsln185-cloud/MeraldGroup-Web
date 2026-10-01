@@ -70,97 +70,26 @@ export const AdminDashboard: React.FC = () => {
         if (res.ok && data.success) {
           setMetrics(data.data);
         } else {
-          // Fallback mock metrics
-          applyFallbackMetrics();
+          setMetrics(getEmptyMetrics());
         }
       } catch {
-        applyFallbackMetrics();
+        setMetrics(getEmptyMetrics());
       } finally {
         setLoading(false);
       }
     };
 
-    const applyFallbackMetrics = () => {
-      setMetrics({
-        totalEmployees: 485,
-        activeSites: 18,
-        documentExpiryCount: 14,
-        todayAttendancePercentage: 94.2,
-        pendingLeaveRequests: 8,
-        manpowerShortfall: user?.role === 'SITE_SUPERVISOR' ? 5 : 24,
-        documentExpiryAlerts: [
-          {
-            id: 'EXP-101',
-            employeeName: 'Emmanuel Chukwu',
-            employeeCode: 'MRLD-NIG-042',
-            documentType: 'Work Permit',
-            expiryDate: '2026-10-12',
-            daysRemaining: 17,
-            site: 'Lagos Island Site A',
-          },
-          {
-            id: 'EXP-102',
-            employeeName: 'Rajesh Kumar',
-            employeeCode: 'MRLD-IND-118',
-            documentType: 'Passport',
-            expiryDate: '2026-10-19',
-            daysRemaining: 24,
-            site: 'Noida Metro Hub',
-          },
-          {
-            id: 'EXP-103',
-            employeeName: 'Zaid Al-Hassan',
-            employeeCode: 'MRLD-UAE-089',
-            documentType: 'Emirates ID',
-            expiryDate: '2026-10-05',
-            daysRemaining: 10,
-            site: 'Dubai Business Bay Tower',
-          },
-          {
-            id: 'EXP-104',
-            employeeName: 'Kwame Mensah',
-            employeeCode: 'MRLD-GHA-055',
-            documentType: 'HSE Certification',
-            expiryDate: '2026-10-28',
-            daysRemaining: 33,
-            site: 'Accra Power Substation',
-          },
-        ],
-        recentActivities: [
-          {
-            id: 'ACT-01',
-            timestamp: '10 mins ago',
-            type: 'ATTENDANCE',
-            description: 'Lagos Island Site A roster submitted by Site Supervisor',
-          },
-          {
-            id: 'ACT-02',
-            timestamp: '45 mins ago',
-            type: 'LEAVE',
-            description: 'Annual Leave request submitted by Rajesh Kumar (Noida Metro)',
-          },
-          {
-            id: 'ACT-03',
-            timestamp: '2 hours ago',
-            type: 'ONBOARDING',
-            description: 'New employee onboarding credentials generated for 3 MEP Technicians',
-          },
-          {
-            id: 'ACT-04',
-            timestamp: '4 hours ago',
-            type: 'DOCUMENT',
-            description: 'Renewed Work Permit uploaded for Emmanuel Chukwu',
-          },
-        ],
-        headcountByCountry: [
-          { country: 'Nigeria', headcount: 195, sites: 7 },
-          { country: 'India', headcount: 140, sites: 5 },
-          { country: 'UAE', headcount: 82, sites: 3 },
-          { country: 'Ghana', headcount: 43, sites: 2 },
-          { country: 'Uganda', headcount: 25, sites: 1 },
-        ],
-      });
-    };
+    const getEmptyMetrics = (): DashboardMetrics => ({
+      totalEmployees: 0,
+      activeSites: 0,
+      documentExpiryCount: 0,
+      todayAttendancePercentage: 0,
+      pendingLeaveRequests: 0,
+      manpowerShortfall: 0,
+      documentExpiryAlerts: [],
+      recentActivities: [],
+      headcountByCountry: [],
+    });
 
     fetchMetrics();
   }, [user]);
