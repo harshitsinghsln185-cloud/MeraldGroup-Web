@@ -23,7 +23,8 @@ export type SystemModule =
   | 'leave_approval'
   | 'sites_departments'
   | 'manpower_management'
-  | 'hr_operational_reports';
+  | 'hr_operational_reports'
+  | 'applicant_tracking';
 
 export type PermissionLevel = 'FULL_ACCESS' | 'READ_ONLY' | 'REQUEST_ONLY' | 'SITE_ONLY' | 'NO_ACCESS' | 'BLOCKED_MASKED';
 
@@ -39,6 +40,7 @@ const PERMISSION_MATRIX: Record<SystemModule, Record<UserRole, PermissionLevel>>
   sites_departments: { HR: 'FULL_ACCESS', ACCOUNTS: 'READ_ONLY', ADMIN: 'FULL_ACCESS', SITE_SUPERVISOR: 'READ_ONLY' },
   manpower_management: { HR: 'FULL_ACCESS', ACCOUNTS: 'READ_ONLY', ADMIN: 'FULL_ACCESS', SITE_SUPERVISOR: 'SITE_ONLY' },
   hr_operational_reports: { HR: 'FULL_ACCESS', ACCOUNTS: 'FULL_ACCESS', ADMIN: 'FULL_ACCESS', SITE_SUPERVISOR: 'NO_ACCESS' },
+  applicant_tracking: { HR: 'FULL_ACCESS', ACCOUNTS: 'NO_ACCESS', ADMIN: 'FULL_ACCESS', SITE_SUPERVISOR: 'NO_ACCESS' },
 };
 
 interface AuthContextType {

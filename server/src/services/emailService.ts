@@ -118,3 +118,62 @@ export const sendOTPEmail = async (toEmail: string, otpCode: string): Promise<bo
     return false;
   }
 };
+
+/**
+ * Sends a branded HTML confirmation email upon successful Job Application submission
+ */
+export const sendApplicationConfirmationEmail = async (
+  toEmail: string,
+  candidateName: string,
+  jobTitle: string
+): Promise<boolean> => {
+  try {
+    const transporter = getTransporter();
+
+    const htmlContent = `
+      <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #0D2E45 0%, #1D6FA5 45%, #3D9DA0 75%, #83C9B8 100%); padding: 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-family: 'Poppins', sans-serif;">Merald Group</h1>
+          <p style="color: #E4F5EE; margin-top: 4px; font-size: 13px;">Career Portal & Candidate Tracking</p>
+        </div>
+        
+        <div style="padding: 32px;">
+          <h2 style="color: #0D2E45; font-size: 20px; margin-top: 0;">Application Received!</h2>
+          <p style="color: #1A1F24; font-size: 15px; line-height: 1.6;">
+            Dear ${candidateName},
+          </p>
+          <p style="color: #1A1F24; font-size: 15px; line-height: 1.6;">
+            Thank you for applying for the position of <strong>${jobTitle}</strong> at Merald Group. We have successfully received your candidate profile and documents.
+          </p>
+          
+          <div style="background: #F7F9FA; border-left: 4px solid #3D9DA0; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0; color: #0D2E45; font-size: 14px; font-weight: bold;">Next Steps in Our Recruitment Process:</p>
+            <ol style="margin: 8px 0 0 18px; padding: 0; color: #6B7280; font-size: 13px; line-height: 1.5;">
+              <li>Application review by our engineering HR team</li>
+              <li>Technical & HSE assessment interview</li>
+              <li>Final leadership deployment alignment</li>
+            </ol>
+          </div>
+
+          <p style="color: #6B7280; font-size: 13px;">
+            Our HR team will reach out to you if your qualifications match our active deployment requirements.
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: '"Merald Group Recruitment" <careers@meraldgroup.com>',
+      to: toEmail,
+      subject: `Application Confirmation - ${jobTitle} | Merald Group`,
+      html: htmlContent,
+    });
+
+    console.log(`[EmailService] Application confirmation email sent successfully to ${toEmail}`);
+    return true;
+  } catch (error) {
+    console.error('[EmailService] Error sending application confirmation email:', error);
+    return false;
+  }
+};
+

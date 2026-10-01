@@ -194,3 +194,19 @@ The system strictly enforces the following permissions matrix across backend mid
 
 ### Phase 6: 500-User Performance Audit & Final QA
 - **Goal:** Final load verification, zero-lint check, E2E test suite pass, and production release sign-off.
+
+---
+
+## 9. Active Feature Progress Tracker
+
+### Module: Job Vacancy Management & ATS (`docs/modules/01-job-vacancy-and-applicants.md`)
+- [x] **Step 1:** RBAC permission key `'applicant_tracking'`, Mongoose `JobVacancy` & `JobApplication` models, Zod validators (`jobVacancyValidator.ts` & `jobApplicationValidator.ts`), and unit test suite — **[COMPLETED]**
+- [x] **Step 2:** HR Job Vacancy CRUD controller (`jobController.ts`), Notification integration, Public & Admin route wiring (`publicRoutes.ts`, `adminRoutes.ts`), and Vitest test suite — **[COMPLETED]**
+- [x] **Step 3:** Public Job Vacancy listing & detail view UI (`Careers.tsx` & `JobDetail.tsx`), `/jobs/:id` route, currency formatting, and Vitest test suite — **[COMPLETED]**
+- [x] **Step 4:** Job Application Submission API (`POST /api/v1/jobs/apply`), Rate limiting (5/hr/IP), Multer memory storage, Magic-byte verification, Duplicate handling, Resilient confirmation email, and Vitest test suite — **[COMPLETED]**
+- [x] **Step 5:** Public Job Application Form Modal UI (`JobApplicationModal.tsx`), client-side 5MB & format checks, auto-uppercase passport input, currency restriction (INR/NGN), error handling, and Vitest test suite — **[COMPLETED]**
+- [x] **Step 6:** HR Applicant Tracking System (ATS) Backend APIs & HR ATS Screen UI (`admin/applicants`), document streaming with JWT bearer headers, atomic `hiredCount` auto-closure logic, and Vitest test suite — **[COMPLETED]**
+- [x] **Step 7:** HR Vacancy Management Admin Screen (`admin/vacancies` & `VacancyModal.tsx`), create/edit/publish/unpublish/delete UI, and end-to-end integration audit — **[COMPLETED]**
+- [x] **Step 8:** System Notifications for published vacancies (`targetRoles: ['HR', 'ADMIN']`) — **[COMPLETED]**
+- [x] **Step 9:** Comprehensive End-to-End Integration Verification & Audit — **[MODULE 100% FULLY DONE & VERIFIED]**
+

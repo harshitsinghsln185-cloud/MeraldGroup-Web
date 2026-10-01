@@ -22,6 +22,20 @@ import {
   deleteUser,
 } from '../controllers/userController';
 
+import {
+  createVacancy,
+  updateVacancy,
+  getAdminVacancies,
+  updateVacancyStatus,
+  deleteVacancy,
+} from '../controllers/jobController';
+
+import {
+  getApplicants,
+  updateApplicantStatus,
+  getApplicantDocument,
+} from '../controllers/jobApplicationAdminController';
+
 import { verifyToken } from '../middleware/authMiddleware';
 import { checkModuleAccess } from '../middleware/roleMiddleware';
 
@@ -29,6 +43,18 @@ const router = Router();
 
 // Protect all admin routes with JWT verification
 router.use(verifyToken);
+
+// Job Vacancy Management & ATS
+router.get('/vacancies', checkModuleAccess('applicant_tracking', 'read'), getAdminVacancies);
+router.post('/vacancies', checkModuleAccess('applicant_tracking', 'write'), createVacancy);
+router.put('/vacancies/:id', checkModuleAccess('applicant_tracking', 'write'), updateVacancy);
+router.patch('/vacancies/:id/status', checkModuleAccess('applicant_tracking', 'write'), updateVacancyStatus);
+router.delete('/vacancies/:id', checkModuleAccess('applicant_tracking', 'write'), deleteVacancy);
+
+// Applicant Tracking System (ATS)
+router.get('/applicants', checkModuleAccess('applicant_tracking', 'read'), getApplicants);
+router.patch('/applicants/:id/status', checkModuleAccess('applicant_tracking', 'write'), updateApplicantStatus);
+router.get('/applicants/:id/document/:docType', checkModuleAccess('applicant_tracking', 'read'), getApplicantDocument);
 
 // Dashboard
 router.get('/dashboard/metrics', getDashboardMetrics);

@@ -6,6 +6,7 @@ export interface HeadingProps {
   className?: string;
   color?: 'navy' | 'white' | 'teal' | 'neutral';
   align?: 'left' | 'center' | 'right';
+  id?: string;
 }
 
 export const Heading: React.FC<HeadingProps> = ({
@@ -14,6 +15,7 @@ export const Heading: React.FC<HeadingProps> = ({
   className = '',
   color = 'navy',
   align = 'left',
+  id,
 }) => {
   const Tag = `h${level}` as React.ElementType;
 
@@ -42,6 +44,7 @@ export const Heading: React.FC<HeadingProps> = ({
 
   return (
     <Tag
+      id={id}
       className={`font-heading ${sizeStyles[level]} ${colorStyles[color]} ${alignStyles[align]} ${className}`}
     >
       {children}

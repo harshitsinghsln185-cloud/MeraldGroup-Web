@@ -21,6 +21,7 @@ import {
   ChevronDown,
   User,
   ExternalLink,
+  Briefcase,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 
@@ -45,6 +46,20 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
       label: 'Dashboard',
       path: '/admin/dashboard',
       icon: <LayoutDashboard className="w-5 h-5" />,
+    },
+    {
+      label: 'Job Vacancies',
+      path: '/admin/vacancies',
+      icon: <Briefcase className="w-5 h-5" />,
+      module: 'applicant_tracking',
+      rolesAllowed: ['HR', 'ADMIN'],
+    },
+    {
+      label: 'Applicants (ATS)',
+      path: '/admin/applicants',
+      icon: <FileCheck className="w-5 h-5" />,
+      module: 'applicant_tracking',
+      rolesAllowed: ['HR', 'ADMIN'],
     },
     {
       label: 'Employees Master Data',

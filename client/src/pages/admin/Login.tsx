@@ -160,7 +160,7 @@ export const Login: React.FC = () => {
             /* ---------------- LOGIN FORM ---------------- */
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#0D2E45] uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <label className="flex items-center justify-between text-xs font-semibold text-[#0D2E45] uppercase tracking-wider mb-1.5">
                   <span>Target Access Role</span>
                   <span className="text-[10px] text-gray-500 font-normal lowercase">(Required for login authorization)</span>
                 </label>

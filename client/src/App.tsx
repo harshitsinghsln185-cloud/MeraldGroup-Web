@@ -24,6 +24,7 @@ import { Countries } from './pages/Countries';
 import { CountryDetail } from './pages/CountryDetail';
 import { About } from './pages/About';
 import { Jobs } from './pages/Jobs';
+import { JobDetail } from './pages/JobDetail';
 import { Contact } from './pages/Contact';
 
 // Admin Auth Pages
@@ -43,6 +44,8 @@ import { Clearance } from './pages/admin/Clearance';
 import { Reports } from './pages/admin/Reports';
 import { Settings } from './pages/admin/Settings';
 import { Users } from './pages/admin/Users';
+import { Applicants } from './pages/admin/Applicants';
+import { Vacancies } from './pages/admin/Vacancies';
 
 // Placeholder Component for future HR Modules in Phase 4/5
 const ModulePlaceholder: React.FC<{ title: string; description: string }> = ({
@@ -96,6 +99,7 @@ export const App: React.FC = () => {
                       <Route path="/countries/:slug" element={<CountryDetail />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/jobs" element={<Jobs />} />
+                      <Route path="/jobs/:id" element={<JobDetail />} />
                       <Route path="/contact" element={<Contact />} />
                     </Routes>
                   </main>
@@ -187,6 +191,24 @@ export const App: React.FC = () => {
                         element={
                           <ProtectedRoute moduleRequired="hr_operational_reports">
                             <Reports />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/vacancies"
+                        element={
+                          <ProtectedRoute moduleRequired="applicant_tracking">
+                            <Vacancies />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/applicants"
+                        element={
+                          <ProtectedRoute moduleRequired="applicant_tracking">
+                            <Applicants />
                           </ProtectedRoute>
                         }
                       />

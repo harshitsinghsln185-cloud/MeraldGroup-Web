@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import {
@@ -18,6 +19,7 @@ import {
   UserCheck,
   PlaneTakeoff,
   Search,
+  DollarSign,
 } from 'lucide-react';
 import { Heading, Text, Label } from '../components/ui/Typography';
 import { Badge } from '../components/ui/Badge';
@@ -36,6 +38,7 @@ export interface JobOpening {
   type: string;
   experienceYears: string;
   description: string;
+  salaryPackage?: { amount: number; currency: 'INR' | 'NGN' };
 }
 
 const sampleJobs: JobOpening[] = [
@@ -47,6 +50,7 @@ const sampleJobs: JobOpening[] = [
     type: 'Full-time Site Deployment',
     experienceYears: '5-8 Years',
     description: 'Lead high-voltage electrical substation and HVAC chiller installation for commercial towers in Lagos.',
+    salaryPackage: { amount: 1500000, currency: 'NGN' },
   },
   {
     _id: 'job-2',
@@ -56,6 +60,7 @@ const sampleJobs: JobOpening[] = [
     type: 'Full-time Site Deployment',
     experienceYears: '4-7 Years',
     description: 'Enforce ISO 45001 & 9001 compliance, risk assessments, and cleanroom safety protocols in Dubai.',
+    salaryPackage: { amount: 120000, currency: 'INR' },
   },
   {
     _id: 'job-3',
@@ -65,6 +70,7 @@ const sampleJobs: JobOpening[] = [
     type: 'Corporate Headquarters',
     experienceYears: '8+ Years',
     description: 'Manage heavy equipment haulage, cross-border GPS route clearance, and cargo fleets for industrial sites.',
+    salaryPackage: { amount: 180000, currency: 'INR' },
   },
   {
     _id: 'job-4',
@@ -74,6 +80,7 @@ const sampleJobs: JobOpening[] = [
     type: 'Field Operations',
     experienceYears: '3-6 Years',
     description: 'Supervise chiller plant maintenance, ducting installation, and environmental testing in Tema.',
+    salaryPackage: { amount: 950000, currency: 'NGN' },
   },
   {
     _id: 'job-5',
@@ -83,6 +90,7 @@ const sampleJobs: JobOpening[] = [
     type: 'Contract Deployment',
     experienceYears: '5+ Years',
     description: 'Commission high-voltage transformers, switchgears, and power distribution grids in Kampala.',
+    salaryPackage: { amount: 110000, currency: 'INR' },
   },
   {
     _id: 'job-6',
@@ -92,11 +100,13 @@ const sampleJobs: JobOpening[] = [
     type: 'Hybrid / Regional Hub',
     experienceYears: '4-8 Years',
     description: 'Oversee electrical board distribution contracts, supplier vetting, and international cargo logistics.',
+    salaryPackage: { amount: 1300000, currency: 'NGN' },
   },
 ];
 
 export const Jobs: React.FC = () => {
   const [jobs, setJobs] = useState<JobOpening[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedJob, setSelectedJob] = useState<JobOpening | null>(null);
@@ -115,25 +125,39 @@ export const Jobs: React.FC = () => {
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
       try {
-        const url = selectedCountry
-          ? `${API_BASE_URL}/jobs?country=${selectedCountry}`
-          : `${API_BASE_URL}/jobs`;
-        const res = await axios.get(url);
-        if (res.data.success && res.data.data.length > 0) {
-          setJobs(res.data.data);
+        const params = new URLSearchParams();
+        if (selectedCountry) params.append('location', selectedCountry);
+        if (selectedDepartment) params.append('department', selectedDepartment);
+
+        const res = await axios.get(`${API_BASE_URL}/vacancies?${params.toString()}`);
+        if (res.data.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const mappedJobs: JobOpening[] = res.data.data.map((item: any) => ({
+            _id: item._id,
+            title: item.title,
+            department: item.department,
+            country: item.location || item.country || 'India',
+            type: 'Full-time Deployment',
+            experienceYears: item.experienceRequired || `${item.experienceYears || 3}+ Years`,
+            description: `${item.degreeRequired || 'Degree'} required. ${item.skillsRequired?.join(', ') || ''}`,
+            salaryPackage: item.salaryPackage,
+          }));
+          setJobs(mappedJobs);
         } else {
           setJobs(sampleJobs);
         }
       } catch {
         setJobs(sampleJobs);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchJobs();
-  }, [selectedCountry]);
+  }, [selectedCountry, selectedDepartment]);
 
-  // Filter logic
+  // Filter logic for client side if using sample fallback
   const filteredJobs = jobs.filter((j) => {
     const matchDept = selectedDepartment ? j.department.toLowerCase().includes(selectedDepartment.toLowerCase()) : true;
     const matchLoc = selectedCountry ? j.country.toLowerCase() === selectedCountry.toLowerCase() || j.country.toLowerCase() === 'anywhere' : true;
@@ -243,7 +267,6 @@ export const Jobs: React.FC = () => {
 
       {/* ---------------- SECTION 1: HERO SECTION ---------------- */}
       <section className="relative w-full py-24 bg-transparent text-white overflow-hidden">
-        {/* Hero Background Image Placeholder - Replace src URL when needed */}
         <img
           src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&q=80"
           alt="Careers Hero Background"
@@ -335,7 +358,6 @@ export const Jobs: React.FC = () => {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            {/* Desktop Horizontal Stepper UI / Mobile Vertical */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
               {processSteps.map((step, idx) => (
                 <div key={idx} className="relative group">
@@ -354,7 +376,6 @@ export const Jobs: React.FC = () => {
                     </Text>
                   </Card>
 
-                  {/* Desktop connecting arrow line */}
                   {idx < processSteps.length - 1 && (
                     <div className="hidden md:block absolute top-12 -right-3 z-10 text-teal-400 pointer-events-none">
                       <ArrowRight className="w-6 h-6" />
@@ -374,7 +395,7 @@ export const Jobs: React.FC = () => {
             <SectionHead
               eyebrow="Open Roles"
               title="Current Engineering & Operations Openings"
-              lede="Filter open roles by department or preferred operational location to apply directly."
+              lede="Filter open roles by department or preferred operational location to view details and apply directly."
             />
           </ScrollReveal>
 
@@ -387,7 +408,6 @@ export const Jobs: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                {/* Department Filter */}
                 <select
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
@@ -401,7 +421,6 @@ export const Jobs: React.FC = () => {
                   <option value="Corporate">Corporate & Supply</option>
                 </select>
 
-                {/* Location Filter */}
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
@@ -431,10 +450,15 @@ export const Jobs: React.FC = () => {
 
           {/* Job Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJobs.length === 0 ? (
+            {loading ? (
+              <div className="col-span-full py-12 text-center">
+                <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <Text color="muted">Loading published vacancies...</Text>
+              </div>
+            ) : filteredJobs.length === 0 ? (
               <div className="col-span-full bg-white rounded-xl p-12 text-center text-gray-500 border border-gray-200">
                 <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <Heading level={3} color="navy" className="mb-2">No Matching Roles Found</Heading>
+                <Heading level={3} color="navy" className="mb-2">No Open Positions Right Now</Heading>
                 <Text color="muted" className="mb-4">Try clearing your filters or submit a general spontaneous application.</Text>
                 <Button variant="primary" size="sm" onClick={() => handleApplyClick()}>Submit General Application</Button>
               </div>
@@ -452,28 +476,43 @@ export const Jobs: React.FC = () => {
                         {job.title}
                       </Heading>
 
-                      <div className="flex items-center gap-4 text-xs text-neutral-500 font-body mb-4">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 font-body mb-4">
                         <span className="flex items-center gap-1 font-semibold text-navy-900">
                           <MapPin className="w-3.5 h-3.5 text-teal-500" /> {job.country}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5 text-teal-500" /> {job.experienceYears}
                         </span>
+                        {job.salaryPackage && (
+                          <span className="flex items-center gap-1 font-semibold text-teal-600">
+                            <DollarSign className="w-3.5 h-3.5" />
+                            {job.salaryPackage.currency === 'INR' ? '₹' : '₦'} {job.salaryPackage.amount.toLocaleString()}
+                          </span>
+                        )}
                       </div>
 
-                      <Text size="small" color="muted" className="mb-6 leading-relaxed">
+                      <Text size="small" color="muted" className="mb-6 leading-relaxed line-clamp-3">
                         {job.description}
                       </Text>
                     </div>
 
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => handleApplyClick(job)}
-                      className="w-full justify-center font-semibold"
-                    >
-                      <Briefcase className="w-4 h-4 mr-2" /> Apply For Role
-                    </Button>
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
+                      <Link
+                        to={`/jobs/${job._id}`}
+                        className="inline-flex items-center text-xs sm:text-sm font-semibold text-teal-600 hover:text-teal-700 font-body transition-colors"
+                      >
+                        View Details <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                      </Link>
+
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleApplyClick(job)}
+                        className="font-semibold"
+                      >
+                        <Briefcase className="w-3.5 h-3.5 mr-1.5" /> Apply
+                      </Button>
+                    </div>
                   </Card>
                 </ScrollReveal>
               ))

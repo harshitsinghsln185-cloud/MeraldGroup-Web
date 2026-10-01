@@ -148,22 +148,20 @@ export const Users: React.FC = () => {
         <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
           <button
             onClick={() => setActiveTab('pending')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'pending'
-                ? 'bg-navy-900 text-white shadow-sm'
-                : 'text-gray-600 hover:text-navy-900'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'pending'
+              ? 'bg-navy-900 text-white shadow-sm'
+              : 'text-gray-600 hover:text-navy-900'
+              }`}
           >
             <Clock className="w-4 h-4 text-amber-400" />
             Pending HR Approvals ({pendingUsers.length})
           </button>
           <button
             onClick={() => setActiveTab('active')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'active'
-                ? 'bg-navy-900 text-white shadow-sm'
-                : 'text-gray-600 hover:text-navy-900'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'active'
+              ? 'bg-navy-900 text-white shadow-sm'
+              : 'text-gray-600 hover:text-navy-900'
+              }`}
           >
             <UserCheck className="w-4 h-4 text-mint-400" />
             Active Users ({activeUsers.length})
@@ -174,11 +172,10 @@ export const Users: React.FC = () => {
       {/* Alert Messages */}
       {message && (
         <div
-          className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between ${
-            message.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-900'
-              : 'bg-red-50 border border-red-200 text-red-900'
-          }`}
+          className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between ${message.type === 'success'
+            ? 'bg-emerald-50 border border-emerald-200 text-emerald-900'
+            : 'bg-red-50 border border-red-200 text-red-900'
+            }`}
         >
           <div className="flex items-center gap-2">
             {message.type === 'success' ? (
@@ -338,10 +335,10 @@ export const Users: React.FC = () => {
                           u.role === 'HR'
                             ? 'mint'
                             : u.role === 'ACCOUNTS'
-                            ? 'teal'
-                            : u.role === 'ADMIN'
-                            ? 'warning'
-                            : 'navy'
+                              ? 'teal'
+                              : u.role === 'ADMIN'
+                                ? 'warning'
+                                : 'navy'
                         }
                         className="font-bold text-[11px]"
                       >
