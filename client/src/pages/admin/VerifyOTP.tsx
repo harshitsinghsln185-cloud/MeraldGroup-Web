@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ShieldCheck, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../config/constants';
 
 export const VerifyOTP: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export const VerifyOTP: React.FC = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/v1/auth/verify-otp', {
+      const response = await apiFetch('/api/v1/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailFromState, otp }),

@@ -7,6 +7,7 @@ import {
   Save,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../config/constants';
 
 export interface AuditLogItem {
   _id?: string;
@@ -33,7 +34,7 @@ export const Settings: React.FC = () => {
 
   const fetchSettings = React.useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/admin/settings', { credentials: 'include' });
+      const res = await apiFetch('/api/v1/admin/settings', { credentials: 'include' });
       const data = await res.json();
       if (data.success) {
         if (data.settings) {
@@ -58,7 +59,7 @@ export const Settings: React.FC = () => {
   const handleSaveConfig = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/v1/admin/settings', {
+      const res = await apiFetch('/api/v1/admin/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

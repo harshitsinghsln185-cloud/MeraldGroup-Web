@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   Filter,
 } from 'lucide-react';
-import { COUNTRIES } from '../../config/constants';
+import { COUNTRIES, apiFetch } from '../../config/constants';
 
 export interface ManpowerRow {
   _id: string;
@@ -30,10 +30,7 @@ export const Manpower: React.FC = () => {
   useEffect(() => {
     const fetchManpower = async () => {
       try {
-        const token = localStorage.getItem('merald_token');
-        const res = await fetch('/api/v1/admin/manpower', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/api/v1/admin/manpower');
         const data = await res.json();
         if (res.ok && data.success && data.data) {
           setItems(data.data);

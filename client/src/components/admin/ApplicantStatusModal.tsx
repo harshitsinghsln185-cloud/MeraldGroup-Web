@@ -4,6 +4,7 @@ import { Heading, Text, Label } from '../ui/Typography';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
+import { apiFetch } from '../../config/constants';
 
 export interface ApplicantRecord {
   _id: string;
@@ -45,7 +46,7 @@ export const ApplicantStatusModal: React.FC<ApplicantStatusModalProps> = ({
   onClose,
   applicant,
   onStatusUpdated,
-  token,
+  token: _token,
 }) => {
   const [status, setStatus] = useState<'NEW' | 'SHORTLISTED' | 'REJECTED' | 'HIRED'>('NEW');
   const [notes, setNotes] = useState<string>('');
@@ -82,11 +83,10 @@ export const ApplicantStatusModal: React.FC<ApplicantStatusModalProps> = ({
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/v1/admin/applicants/${applicant._id}/status`, {
+      const res = await apiFetch(`/api/v1/admin/applicants/${applicant._id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status, notes }),
       });

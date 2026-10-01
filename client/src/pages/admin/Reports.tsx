@@ -9,7 +9,7 @@ import {
   ShieldAlert,
   Printer,
 } from 'lucide-react';
-import { COUNTRIES } from '../../config/constants';
+import { COUNTRIES, apiFetch } from '../../config/constants';
 
 export const Reports: React.FC = () => {
   const [reportType, setReportType] = useState<'EMPLOYEE' | 'PAYROLL' | 'MANPOWER' | 'AUDIT'>('EMPLOYEE');
@@ -26,7 +26,7 @@ export const Reports: React.FC = () => {
       if (selectedMonth) url += `month=${selectedMonth}&`;
       if (selectedCurrency) url += `currency=${selectedCurrency}&`;
 
-      const res = await fetch(url, { credentials: 'include' });
+      const res = await apiFetch(url, { credentials: 'include' });
       const data = await res.json();
       if (data.success && data.data) {
         setReportData(data.data);

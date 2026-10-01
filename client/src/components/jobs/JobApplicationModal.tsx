@@ -226,9 +226,7 @@ export const JobApplicationModal: React.FC<JobApplicationModalProps> = ({
       if (passportFile) formData.append('passportFile', passportFile);
       if (resumeFile) formData.append('resumeFile', resumeFile);
 
-      const response = await axios.post(`${API_BASE_URL}/jobs/apply`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axios.post(`${API_BASE_URL}/jobs/apply`, formData);
 
       if (response.data.success) {
         setSuccessMessage('Your application has been submitted successfully! Check your email for confirmation.');

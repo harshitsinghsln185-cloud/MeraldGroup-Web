@@ -19,6 +19,7 @@ import { Heading, Text } from '../../components/ui/Typography';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../config/constants';
 
 export interface SystemUser {
   _id: string;
@@ -38,7 +39,7 @@ export interface SystemUser {
 }
 
 export const Users: React.FC = () => {
-  const { token, user: currentUser } = useAuth();
+  const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'pending' | 'active'>('pending');
   const [users, setUsers] = useState<SystemUser[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,9 +51,7 @@ export const Users: React.FC = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await fetch(`/api/v1/admin/users?search=${search}&role=${roleFilter}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/api/v1/admin/users?search=${search}&role=${roleFilter}`);
       const data = await res.json();
       if (data.success && data.data) {
         setUsers(data.data);
@@ -62,7 +61,7 @@ export const Users: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, search, roleFilter]);
+  }, [search, roleFilter]);
 
   useEffect(() => {
     fetchUsers();
@@ -71,11 +70,10 @@ export const Users: React.FC = () => {
   const handleApprove = async (userId: string) => {
     const assignedRole = selectedRoles[userId] || 'SITE_SUPERVISOR';
     try {
-      const res = await fetch(`/api/v1/admin/users/${userId}/approve`, {
+      const res = await apiFetch(`/api/v1/admin/users/${userId}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ role: assignedRole }),
       });
@@ -93,9 +91,8 @@ export const Users: React.FC = () => {
 
   const handleReject = async (userId: string) => {
     try {
-      const res = await fetch(`/api/v1/admin/users/${userId}/reject`, {
+      const res = await apiFetch(`/api/v1/admin/users/${userId}/reject`, {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) {
@@ -112,9 +109,8 @@ export const Users: React.FC = () => {
   const handleDelete = async (userId: string) => {
     if (!window.confirm('Are you sure you want to delete this user account?')) return;
     try {
-      const res = await fetch(`/api/v1/admin/users/${userId}`, {
+      const res = await apiFetch(`/api/v1/admin/users/${userId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.success) {

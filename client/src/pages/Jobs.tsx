@@ -122,9 +122,7 @@ export const Jobs: React.FC = () => {
       formData.append('coverNote', coverNote);
       if (resumeFile) formData.append('resume', resumeFile);
 
-      const res = await axios.post(`${API_BASE_URL}/jobs/apply`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await axios.post(`${API_BASE_URL}/jobs/apply`, formData);
 
       if (res.data.success) {
         setSuccessMessage('Your application has been received successfully! Our HR team will contact you.');

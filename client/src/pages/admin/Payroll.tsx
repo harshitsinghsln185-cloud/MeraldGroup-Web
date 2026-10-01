@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../config/constants';
 import {
   Lock,
   Eye,
@@ -58,13 +59,10 @@ export const Payroll: React.FC = () => {
   useEffect(() => {
     const fetchPayroll = async () => {
       try {
-        const token = localStorage.getItem('merald_token');
         const url = currencyFilter
           ? `/api/v1/admin/payroll?month=${selectedMonth}&currency=${currencyFilter}`
           : `/api/v1/admin/payroll?month=${selectedMonth}`;
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch(url);
         const data = await res.json();
         if (res.ok && data.success && data.data) {
           setPayrolls(data.data);

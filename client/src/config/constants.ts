@@ -50,7 +50,50 @@ export const DOCUMENT_EXPIRY_WARNING_DAYS = {
   URGENT: 15,
 } as const;
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://meraldgroup-web.onrender.com/api/v1';
 
 export const HERO_VIDEO_URL = '/Merald.mp4';
+
+/**
+ * Centralized API fetch helper that prepends API_BASE_URL,
+ * attaches JWT Bearer token automatically, and handles Render cold starts with graceful retry.
+ */
+export async function apiFetch(endpoint: string, options: RequestInit = {}, retries = 1): Promise<Response> {
+  let url = endpoint;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    const base = API_BASE_URL.replace(/\/$/, '');
+    if (url.startsWith('/api/v1')) {
+      url = `${base}${url.replace(/^\/api\/v1/, '')}`;
+    } else {
+      url = `${base}${url.startsWith('/') ? url : `/${url}`}`;
+    }
+  }
+
+  const headers = new Headers(options.headers || {});
+  const token = localStorage.getItem('merald_token');
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  const config: RequestInit = {
+    ...options,
+    headers,
+  };
+
+  try {
+    const response = await fetch(url, config);
+    if ((response.status === 502 || response.status === 503) && retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      return apiFetch(endpoint, options, retries - 1);
+    }
+    return response;
+  } catch (error) {
+    if (retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      return apiFetch(endpoint, options, retries - 1);
+    }
+    throw error;
+  }
+}
+
 

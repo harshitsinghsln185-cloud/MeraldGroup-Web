@@ -3,6 +3,7 @@ import { X, AlertCircle } from 'lucide-react';
 import { Heading, Text, Label } from '../ui/Typography';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { apiFetch } from '../../config/constants';
 
 export interface JobVacancyRecord {
   _id?: string;
@@ -39,7 +40,7 @@ export const VacancyModal: React.FC<VacancyModalProps> = ({
   onClose,
   vacancy,
   onSaved,
-  token,
+  token: _token,
 }) => {
   const [title, setTitle] = useState('');
   const [department, setDepartment] = useState('MEP');
@@ -151,11 +152,10 @@ export const VacancyModal: React.FC<VacancyModalProps> = ({
       const url = isEdit ? `/api/v1/admin/vacancies/${vacancy._id}` : '/api/v1/admin/vacancies';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });

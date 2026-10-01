@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth, type UserRole } from '../../context/AuthContext';
 import { Lock, Mail, ArrowRight, User as UserIcon, Building2, Phone, Clock, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../config/constants';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -33,7 +34,7 @@ export const Login: React.FC = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('/api/v1/auth/login', {
+      const response = await apiFetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role: selectedRole }),
@@ -61,7 +62,7 @@ export const Login: React.FC = () => {
     setSuccessMessage('');
 
     try {
-      const response = await fetch('/api/v1/auth/register', {
+      const response = await apiFetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -9,7 +9,7 @@ import {
   Plus,
   ShieldCheck,
 } from 'lucide-react';
-import { COUNTRIES } from '../../config/constants';
+import { COUNTRIES, apiFetch } from '../../config/constants';
 
 export interface ClearanceItem {
   departmentKey: 'IT' | 'HR' | 'ACCOUNTS' | 'SITE';
@@ -58,7 +58,7 @@ export const Clearance: React.FC = () => {
       if (selectedCountry) url += `country=${selectedCountry}&`;
       if (selectedStatus) url += `status=${selectedStatus}&`;
 
-      const res = await fetch(url, { credentials: 'include' });
+      const res = await apiFetch(url, { credentials: 'include' });
       const data = await res.json();
       if (data.success && data.data) {
         setClearanceRecords(data.data);
@@ -78,7 +78,7 @@ export const Clearance: React.FC = () => {
 
   const handleToggleClearanceItem = async (clearanceId: string, departmentKey: string, currentCleared: boolean) => {
     try {
-      const res = await fetch(`/api/v1/admin/clearance/${clearanceId}/item`, {
+      const res = await apiFetch(`/api/v1/admin/clearance/${clearanceId}/item`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -97,7 +97,7 @@ export const Clearance: React.FC = () => {
     e.preventDefault();
     if (!newEmployeeCode || !newExitReason) return;
     try {
-      const res = await fetch('/api/v1/admin/clearance', {
+      const res = await apiFetch('/api/v1/admin/clearance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

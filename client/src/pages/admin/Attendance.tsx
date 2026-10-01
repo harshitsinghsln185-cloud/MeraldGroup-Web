@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../../config/constants';
 import {
   CalendarCheck,
   CheckCircle2,
@@ -32,12 +33,8 @@ export const Attendance: React.FC = () => {
     const fetchRoster = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('merald_token');
-        const res = await fetch(
-          `/api/v1/admin/attendance?month=${selectedMonth}&site=${encodeURIComponent(selectedSite)}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+        const res = await apiFetch(
+          `/api/v1/admin/attendance?month=${selectedMonth}&site=${encodeURIComponent(selectedSite)}`
         );
         const data = await res.json();
         if (res.ok && data.success && Array.isArray(data.data)) {

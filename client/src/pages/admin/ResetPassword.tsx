@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../config/constants';
 
 export const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export const ResetPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/v1/auth/reset-password', {
+      const response = await apiFetch('/api/v1/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

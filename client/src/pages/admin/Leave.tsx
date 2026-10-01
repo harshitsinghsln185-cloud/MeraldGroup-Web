@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../config/constants';
 import {
   Calendar,
   Plus,
@@ -49,10 +50,7 @@ export const Leave: React.FC = () => {
   useEffect(() => {
     const fetchLeaves = async () => {
       try {
-        const token = localStorage.getItem('merald_token');
-        const res = await fetch('/api/v1/admin/leave', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/api/v1/admin/leave');
         const data = await res.json();
         if (res.ok && data.success && data.data) {
           setLeaves(data.data);

@@ -15,6 +15,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { VacancyModal, type JobVacancyRecord } from '../../components/admin/VacancyModal';
+import { apiFetch } from '../../config/constants';
 
 export const Vacancies: React.FC = () => {
   const { token, getModulePermission } = useAuth();
@@ -49,9 +50,7 @@ export const Vacancies: React.FC = () => {
       if (deptFilter) queryParams.append('department', deptFilter);
       if (locationFilter) queryParams.append('location', locationFilter);
 
-      const res = await fetch(`/api/v1/admin/vacancies?${queryParams.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/api/v1/admin/vacancies?${queryParams.toString()}`);
 
       const data = await res.json();
       if (!data.success) {
@@ -68,7 +67,7 @@ export const Vacancies: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, page, statusFilter, deptFilter, locationFilter]);
+  }, [page, statusFilter, deptFilter, locationFilter]);
 
   useEffect(() => {
     fetchVacancies();
@@ -79,11 +78,10 @@ export const Vacancies: React.FC = () => {
     const nextStatus = currentStatus === 'PUBLISHED' ? 'CLOSED' : 'PUBLISHED';
 
     try {
-      const res = await fetch(`/api/v1/admin/vacancies/${id}/status`, {
+      const res = await apiFetch(`/api/v1/admin/vacancies/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: nextStatus }),
       });
@@ -105,9 +103,8 @@ export const Vacancies: React.FC = () => {
     if (!window.confirm(`Are you sure you want to delete the vacancy "${title}"?`)) return;
 
     try {
-      const res = await fetch(`/api/v1/admin/vacancies/${id}`, {
+      const res = await apiFetch(`/api/v1/admin/vacancies/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();

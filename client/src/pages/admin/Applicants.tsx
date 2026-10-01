@@ -14,6 +14,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { ApplicantStatusModal, type ApplicantRecord } from '../../components/admin/ApplicantStatusModal';
+import { apiFetch } from '../../config/constants';
 
 export interface JobOption {
   _id: string;
@@ -49,9 +50,7 @@ export const Applicants: React.FC = () => {
   // Fetch Published / All Vacancies for dropdown
   const fetchVacancies = useCallback(async () => {
     try {
-      const res = await fetch('/api/v1/admin/vacancies', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/api/v1/admin/vacancies');
       const data = await res.json();
       if (data.success && data.data) {
         setVacancies(data.data.map((v: any) => ({ _id: v._id, title: v.title })));
@@ -59,7 +58,7 @@ export const Applicants: React.FC = () => {
     } catch {
       // Fallback silently if vacancies call fails
     }
-  }, [token]);
+  }, []);
 
   // Fetch Applicants List
   const fetchApplicants = useCallback(async () => {
@@ -75,9 +74,7 @@ export const Applicants: React.FC = () => {
       if (statusFilter) queryParams.append('status', statusFilter);
       if (jobFilter) queryParams.append('jobId', jobFilter);
 
-      const res = await fetch(`/api/v1/admin/applicants?${queryParams.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/api/v1/admin/applicants?${queryParams.toString()}`);
 
       const data = await res.json();
       if (!data.success) {
@@ -94,7 +91,7 @@ export const Applicants: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, page, nameSearch, passportSearch, statusFilter, jobFilter]);
+  }, [page, nameSearch, passportSearch, statusFilter, jobFilter]);
 
   useEffect(() => {
     fetchVacancies();
@@ -136,9 +133,7 @@ export const Applicants: React.FC = () => {
     setLoadingDoc(docKey);
 
     try {
-      const res = await fetch(`/api/v1/admin/applicants/${applicantId}/document/${docType}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(`/api/v1/admin/applicants/${applicantId}/document/${docType}`);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));

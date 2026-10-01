@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../config/constants';
 import { motion } from 'framer-motion';
 import {
   Users,
@@ -60,12 +61,7 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const token = localStorage.getItem('merald_token');
-        const res = await fetch('/api/v1/admin/dashboard/metrics', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await apiFetch('/api/v1/admin/dashboard/metrics');
         const data = await res.json();
         if (res.ok && data.success) {
           setMetrics(data.data);

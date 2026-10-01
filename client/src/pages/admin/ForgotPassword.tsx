@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, ArrowLeft, Send } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { apiFetch } from '../../config/constants';
 
 export const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/v1/auth/forgot-password', {
+      const res = await apiFetch('/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

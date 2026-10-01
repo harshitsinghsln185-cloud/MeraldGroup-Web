@@ -13,7 +13,7 @@ import {
   Shield,
   X,
 } from 'lucide-react';
-import { COUNTRIES } from '../../config/constants';
+import { COUNTRIES, apiFetch } from '../../config/constants';
 
 export interface IDocumentItem {
   documentType: string;
@@ -81,10 +81,7 @@ export const Employees: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const token = localStorage.getItem('merald_token');
-        const res = await fetch('/api/v1/admin/employees', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await apiFetch('/api/v1/admin/employees');
         const data = await res.json();
         if (res.ok && data.success && data.data) {
           setEmployees(data.data);
